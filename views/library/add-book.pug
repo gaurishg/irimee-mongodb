@@ -1,0 +1,148 @@
+extends ../layout
+
+//- Modal Mixin
+mixin modal(title, modal_id)
+    .modal.fade(tabindex="-1", role="dialog", id=modal_id, aria-labelledby="exampleModalLabel", aria-hidden="true")
+        .modal-dialog(role="document")
+            .modal-content
+                .modal-header
+                    h5.modal-title= "Add new " + title 
+                    button.close(type="button", data-dismiss="modal", aria-label="Close")
+                        span(aria-hidden="true") &times;
+                .modal-body
+                    input.form-control(type="text", placeholder="Enter "+title+" name")
+                .modal-footer
+                    button.btn.btn-primary(type="button", data-dismiss="modal") Save changes
+                    button.btn.btn-secondary(type="button", data-dismiss="modal") Close
+
+mixin modal_trigger(target_id, trigger_id)
+    button.btn.btn-primary(type="button", data-toggle="modal", data-target="#"+target_id, id=trigger_id)
+        i.fas.fa-plus.fa-lg
+
+
+block head-part
+    link(rel="stylesheet", href="/stylesheets/library-styles.css")
+
+block content
+    .container
+        .row
+            .col
+                h1 Add book to library
+        if errors
+            ul
+                for error in errors
+                    li!= error.msg
+        .row
+            .col
+                form(action="", method="POST", enctype="multipart/form-data")
+                    .form-group.form-row.align-items-center
+                        .col.col-sm-2.col-form-label
+                            label(for="bookTitleInput") Title
+                        .col.col-sm
+                            input.form-control#bookTitleInput(type="text", name="title", placeholder="Enter Title", required, value=(title)?title:"")
+                            div.invalid-feedback Title can not be empty
+                        .col-sm-1
+                            // Dummy column
+                        
+                    //- .form-group.form-row.align-items-center
+                    //-     .col.col-sm-2.col-form-label
+                    //-         label(for="bookEditionInput") Edition
+                    //-     .col.col-sm
+                    //-         input.form-control#bookEditionInput(type="number", name="bookEdition", placeholder="Edition of book")
+                    //-     .col-sm-1
+                    //-         // Dummy column
+
+                    // TODO: Need to convert it to dropdown menu
+                    .form-group.form-row.align-items-center
+                        .col.col-sm-2.col-form-label
+                            label(for="bookLanguage1Input") Language
+                        .col.col-sm
+                            .row#languageRow
+                                each language in languages
+                                    .col.col-sm-3
+                                        input.d-none(type="checkbox", name="language", id="language" + language._id, checked=(language.checked), value=language._id)
+                                        label.btn.btn-secondary.selector-button(for="language" + language._id, data-toggle="tooltip", title=language.name)= language.name
+
+                            //- input.form-control#bookLanguage1Input(type="text", name="bookLanguage", value="English")
+                        .col.col-sm-1
+                            //- i.fa.fa-plus-square.fa-lg
+                            +modal_trigger("language-modal-id", "add-language-button")
+                            +modal("language", "language-modal-id")
+
+                    
+                    .form-group.form-row.align-items-center
+                        .col.col-sm-2.col-form-label
+                            label(for="bookISBN10Input") ISBN-10
+                        .col.col-sm
+                            input.form-control#bookISBN10Input(type="text", name="isbn10", value=(isbn10)?isbn10:"")
+                            .invalid-feedback ISBN-10 must be 10 digits long
+                        .col-sm-1
+
+                    .form-group.form-row.align-items-center
+                        .col.col-sm-2.col-form-label
+                            label(for="bookISBN13Input") ISBN-13
+                        .col.col-sm
+                            input.form-control#bookISBN13Input(type="text", name="isbn13", value=(isbn13)?isbn13:"")
+                            .invalid-feedback ISBN-13 must be 13 digits long
+                        .col-sm-1
+
+                    .form-group.form-row.align-items-center
+                        .col.col-sm-2.col-form-label
+                            label(for="") Publisher
+                        .col.col-sm
+                            //- input.form-control#bookAuthor1Input(type="text", name="bookAuthor")
+                            fieldset
+                                .row#publisherRow
+                                    each publisher in publishers
+                                        .col.col-sm-3
+                                            input.d-none(type="radio", name="publisher", id="publisher" + publisher._id, value=publisher._id, checked=publisher.checked)
+                                            label.btn.btn-secondary.selector-button(for="publisher"+publisher._id, data-toggle="tooltip", title=publisher.name)= publisher.name
+                        .col.col-sm-1
+                            +modal_trigger("publisher-modal-id", "add-publisher-button")
+                            +modal("publisher", "publisher-modal-id")
+
+                    .form-group.form-row.align-items-center
+                        .col.col-sm-2.col-form-label
+                            label(for="bookAuthor1Input") Author
+                        .col.col-sm
+                            //- input.form-control#bookAuthor1Input(type="text", name="bookAuthor")
+                            .row#authorRow
+                                each author in authors
+                                    .col.col-sm-3
+                                        input.d-none(type="checkbox", name="author", id="author" + author._id, value=author._id, checked=author.checked)
+                                        label.btn.btn-secondary.selector-button(for="author"+author._id, data-toggle="tooltip", title=author.name)= author.name
+                        .col.col-sm-1
+                            +modal_trigger("author-modal-id", "add-author-button")
+                            +modal("author", "author-modal-id")
+
+                    .form-group.form-row.align-items-center
+                        .col.col-sm-2.col-form-label
+                            label(for="") Tags
+                        .col.col-sm
+                            .row#tagRow
+                                each tag in tags
+                                    .col.col-sm-3
+                                        input.d-none(type="checkbox", name="tag", id="tag" + tag._id, value=tag._id, checked=tag.checked)
+                                        label.btn.btn-secondary.selector-button(for="tag"+tag._id, data-toggle="tooltip", title=tag.name)= tag.name
+                        .col.col-sm-1
+                            +modal_trigger("tag-modal-id", "add-tag-button")
+                            +modal("tag", "tag-modal-id")
+
+                    .form-group.form-row.align-items-center
+                        .col.col-sm-2.col-form-label
+                            label(for="bookCoverInput") Cover
+                        .col.col-sm
+                            img.img-thumbnail.cursor-pointer#bookCoverImage(src="../images/book-covers/default_book_cover.png", alt="Book cover")
+                            input.form-control-file.d-none#bookCoverInput(type="file", name="image_file")
+                            
+
+                    hr
+                    .form-row
+                        .col.col-sm-2
+                            button.btn.btn-secondary Cancel
+                        .col.col-sm-2
+                            button.btn.btn-primary(type="submit") Add
+
+
+block more-js
+    script(src="../javascripts/library-addbook.js")

@@ -1,0 +1,65 @@
+mixin loginModalMixin()
+  .modal.fade#loginModal(tabindex='-1' role='dialog' aria-labelledby='exampleModalLabel' aria-hidden='true')
+    .modal-dialog(role='document')
+      .modal-content
+        .modal-header
+          h5.modal-title Login
+          button.close(type='button' data-dismiss='modal' aria-label='Close')
+            span(aria-hidden='true') &times;
+        .modal-body
+          .input-group.mb-2.mr-sm-2
+            .input-group-prepend
+              .input-group-text.fas.fa-user
+            input.form-control#loginUsernameInput(type="text", placeholder="AADHAR", name='aadhar')
+
+          .input-group.mb-2.mr-sm-2
+            .input-group-prepend
+              .input-group-text.fas.fa-key
+            input.form-control#loginPasswordInput(type="password", placeholder="Password", name="password")
+            .fas.fa-eye.my-auto#showPasswordEye
+            //- a.form-text(href="/reset-password")
+          small
+            a.form-text.offset-1(href="/reset-password") Forgot password?
+
+        .modal-footer
+          small
+            a(href="/register") Don't have a account? Sign up
+          button.btn.btn-secondary(type='button' data-dismiss='modal') Close
+          button.btn.btn-primary(type='button', data-dismiss="modal") Login
+
+mixin topNavigationBar()
+  nav.navbar.navbar-expand-lg.navbar-light.bg-light
+    a.navbar-brand(href='/') Navbar
+    button.navbar-toggler(type='button' data-toggle='collapse' data-target='#navbarSupportedContent' aria-controls='navbarSupportedContent' aria-expanded='false' aria-label='Toggle navigation')
+      span.navbar-toggler-icon
+    #navbarSupportedContent.collapse.navbar-collapse
+      ul.navbar-nav.mr-auto
+        li.nav-item#HomeNavItem(class=(currentPath==""?"active":""))
+          a.nav-link(href='/')
+            | Home
+        li.nav-item#LibraryNavItem(class=(currentPath=="library"?"active":""))
+          a.nav-link(href="/library") Library
+        li.nav-item
+          a.nav-link(href='#') Link
+        li.nav-item.dropdown
+          a#navbarDropdown.nav-link.dropdown-toggle(href='#' role='button' data-toggle='dropdown' aria-haspopup='true' aria-expanded='false')
+            | Dropdown
+          .dropdown-menu(aria-labelledby='navbarDropdown')
+            a.dropdown-item(href='#') Action
+            a.dropdown-item(href='#') Another action
+            .dropdown-divider
+            a.dropdown-item(href='#') Something else here
+        li.nav-item
+          a.nav-link.disabled(href='#') Disabled
+      form.form-inline.my-2.my-lg-0
+        input.form-control.mr-sm-2(type='search' placeholder='Search' aria-label='Search')
+        button.btn.btn-outline-success.my-2.my-sm-0(type='submit') Search
+      .navbar-nav
+          .nav-item
+              if !registeredUser
+                  a.nav-link(href='', data-toggle="modal", data-target="#loginModal") Login
+                  +loginModalMixin()
+              else
+                  a.nav-link(href='') Logout
+
++topNavigationBar()

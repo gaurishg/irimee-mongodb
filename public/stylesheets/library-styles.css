@@ -1,0 +1,69 @@
+input:checked + label.selector-button {
+  background-color: #118317; }
+
+input + label.selector-button {
+  width: 100%;
+  overflow: hidden; }
+
+#BookCoverImage {
+  max-height: 20rem; }
+
+.book-instance-row img {
+  max-height: 10rem;
+  max-width: 90%; }
+
+.book-available {
+  background-color: #ccffcb; }
+
+.book-unavailable {
+  background-color: #ffc8c8; }
+
+.book-block:hover {
+  box-shadow: 2px 2px 8px black;
+  background-color: aliceblue; }
+  .book-block:hover h4 {
+    cursor: pointer; }
+
+.book-block .book-image-row {
+  height: 240px; }
+  .book-block .book-image-row .book-image-column {
+    height: 100%; }
+    .book-block .book-image-row .book-image-column img.book-image {
+      max-height: 100%;
+      max-width: 100%; }
+
+.lds-facebook {
+  display: inline-block;
+  position: relative;
+  width: 64px;
+  height: 64px; }
+
+.lds-facebook div {
+  display: inline-block;
+  position: absolute;
+  left: 6px;
+  width: 13px;
+  background: #238aff;
+  animation: lds-facebook 1.2s cubic-bezier(0, 0.5, 0.5, 1) infinite; }
+
+.lds-facebook div:nth-child(1) {
+  left: 6px;
+  animation-delay: -0.24s; }
+
+.lds-facebook div:nth-child(2) {
+  left: 26px;
+  animation-delay: -0.12s; }
+
+.lds-facebook div:nth-child(3) {
+  left: 45px;
+  animation-delay: 0; }
+
+@keyframes lds-facebook {
+  0% {
+    top: 6px;
+    height: 51px; }
+  50%, 100% {
+    top: 19px;
+    height: 26px; } }
+
+/*# sourceMappingURL=library-styles.css.map */

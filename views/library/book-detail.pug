@@ -1,0 +1,76 @@
+extends ../layout
+
+
+mixin rowMixin(field, data)
+    - if(data.length > 0)
+        .row
+            .col.col-sm-2
+                strong= field
+            .col.col-sm
+                - if(typeof data == "string")
+                    = data
+                - else
+                    - for( var i = 0; i < data.length - 1 ; ++i)
+                        = data[i]
+                        |, 
+                    = data[data.length - 1]
+
+mixin showBookInstance(book_instance)
+    .row.book-instance-row.my-3.py-3(class=(book_instance.status=="A")?"book-available":"book-unavailable")
+        .col-12.col-sm-4
+            .row.book-instance-image-row
+                .col
+                    img.mx-auto.d-block(src="/images/book-covers/" + (book_instance.image_file?book_instance.image_file:image_file), alt="BookIns Image")
+        .col.col-sm.align-self-center
+            .row.book-instance-detail-row
+                .col-12.col-sm-6 Status: #{book_instance.status=="A"?"Available":"Not Available"}
+                if book_instance.edition
+                    .col.col-sm Edition: #{book_instance.edition}
+        
+
+
+
+block head-part
+    link(rel="stylesheet", href="/stylesheets/library-styles.css")
+
+block content
+    // h1= Title
+    .container
+        .row
+            .col
+                h1= Title
+
+        .row
+            .col
+                img.img-thumbnail#BookCoverImage(src="/images/book-covers/" + image_file, alt="Book cover")
+
+        if languages    
+            +rowMixin("Language(s)", languages)
+        
+        if ISBN10
+            +rowMixin("ISBN10", ISBN10)
+        
+        if ISBN13
+            +rowMixin("ISBN13", ISBN13)
+
+        if authors
+            +rowMixin("Author(s)", authors)
+
+        if tags
+            +rowMixin("Tag(s)", tags)
+
+        if publisher
+            +rowMixin("Publisher", publisher)
+
+        hr
+        
+        .row
+            .col
+                h2 Copies (#{book_instances.length})
+        for book_instance in book_instances
+            +showBookInstance(book_instance)
+
+
+
+block more-js
+    // Nothing

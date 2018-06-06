@@ -1,0 +1,101 @@
+input:checked + label.selector-button {
+    // border: 3px solid green;
+    background-color: rgb(17, 131, 23);
+}
+
+input + label.selector-button {
+    width: 100%;
+    overflow: hidden;
+}
+
+#BookCoverImage // On Book Detail Page
+{
+    max-height: 20rem
+}
+
+.book-instance-row img // On Book Detail Page
+{
+    max-height: 10rem;
+    max-width: 90%;
+}
+
+.book-available // On Book Detail Page
+{
+    background-color: rgb(204, 255, 203);
+}
+
+.book-unavailable // On Book Detail Page
+{
+    background-color: rgb(255, 200, 200);
+}
+
+.book-block // On library home page
+{
+    &:hover
+    {
+        box-shadow: 2px 2px 8px black;
+        background-color: aliceblue;
+
+        h4
+        {
+            cursor: pointer;
+        }
+    }
+    // height: auto;
+
+    .book-image-row
+    {
+        height: 240px;
+
+        .book-image-column
+        {
+            height: 100%;
+            // background-color: antiquewhite;
+
+                img.book-image 
+                {
+                    max-height: 100%;
+                    max-width: 100%;
+                }
+        }
+    }
+}
+
+
+// Loader -> loading.io/css
+.lds-facebook {
+    display: inline-block;
+    position: relative;
+    width: 64px;
+    height: 64px;
+  }
+  .lds-facebook div {
+    display: inline-block;
+    position: absolute;
+    left: 6px;
+    width: 13px;
+    background: rgb(35, 138, 255);
+    animation: lds-facebook 1.2s cubic-bezier(0, 0.5, 0.5, 1) infinite;
+  }
+  .lds-facebook div:nth-child(1) {
+    left: 6px;
+    animation-delay: -0.24s;
+  }
+  .lds-facebook div:nth-child(2) {
+    left: 26px;
+    animation-delay: -0.12s;
+  }
+  .lds-facebook div:nth-child(3) {
+    left: 45px;
+    animation-delay: 0;
+  }
+  @keyframes lds-facebook {
+    0% {
+      top: 6px;
+      height: 51px;
+    }
+    50%, 100% {
+      top: 19px;
+      height: 26px;
+    }
+  }

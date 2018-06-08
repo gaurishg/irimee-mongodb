@@ -3,7 +3,7 @@
   "version": "0.0.0",
   "private": true,
   "scripts": {
-    "start": "node ./bin/www",
+    "start": "SET DEBUG=irimee:* & nodemon ./bin/www",
     "d": "SET DEBUG=irimee:* & nodemon ./bin/www"
   },
   "dependencies": {

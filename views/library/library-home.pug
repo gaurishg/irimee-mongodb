@@ -1,0 +1,99 @@
+extends ../layout
+
+mixin bookBlockMixin(book)
+    .col-12.col-sm-6.col-md-4.col-lg-3.col-xl-2.my-2.py-2.book-block(data-book_id=book._id)
+        .row.book-image-row
+            .col.book-image-column.justify-content-center.align-items-center.d-flex
+                //- span.book-image-helper
+                img.book-image(src="/images/book-covers/" + book.image_file, alt="book cover")
+        .row
+            .col-12
+                h4= book.title
+        .row
+            .col
+                span= book.authors.join(", ")
+        .row
+            .col
+                small= book.languages.join(", ")
+        .row
+            .col
+                small= book.tags.slice(0, 5).join(", ")
+        - var copies_available = 0;
+        - for(var book_instance of book.book_instances) 
+            - if(book_instance.status == "A")
+                - copies_available++
+        .row
+            .col
+                span #{copies_available} #{copies_available==1?"copy":"copies"} available
+
+mixin filterMixin(filterName, filterData, limit)
+    - if(!limit) limit = filterData.length
+    .nav-item
+        h6= filterName.substr(0,1).toUpperCase() + filterName.substr(1) + "s"
+        .row
+            for filter in filterData.slice(0, limit)
+                .col-12.order-2
+                    .form-check
+                        input.form-check-input(type="checkbox", name=filterName + "_ids", value=filter._id, id=filterName + filter._id, checked=filter.checked)
+                        label.form-check-label(for=filterName + filter._id)= filter.name
+        - if(limit < filterData.length)
+            .row
+                .col
+                    // Button Trigger Modal
+                    button.btn.btn-link(type="button", data-toggle="modal", data-target="#" + filterName + "sModalId") Show more
+
+                    // Modal
+                    .modal.fade(id=filterName + "sModalId", role="dialog")
+                        .modal-dialog(role="document")
+                            .modal-content
+                                .modal-header
+                                    h5.modal-title= "All " + filterName + "s"
+                                    button.close(type="button", data-dismiss="modal")
+                                        i.fa.fa-times
+                                .modal-body
+                                    for filter in filterData.slice(limit)
+                                        .col-12.col-sm-6
+                                            .form-check
+                                                input.form-check-input(type="checkbox", name=filterName + "_ids", value=filter._id, id=filterName + filter._id, checked=filter.checked)
+                                                label.form-check-label(for=filterName + filter._id)= filter.name
+                                .modal-footer
+                                    button.btn.btn-primary(type='button' data-dismiss='modal') Close
+                                    // button.btn.btn-primary(type='button') Apply
+
+
+block head-part
+    link(rel="stylesheet", href="/stylesheets/library-styles.css")
+
+block content
+    .container-fluid
+        .row
+            // sidebar for options
+            .col.col-md-3
+                form#sidebarform(action="", method="get")
+                    nav
+                        .nav-item#firstsidebarnav
+                            h5 Filters
+                        hr
+                        +filterMixin("tag", tags, 4)
+                        hr
+                        +filterMixin("language", languages)
+                        hr
+                        button.btn.btn-primary#sidenavbarsubmitbutton(type="submit") Apply
+
+
+            // sidebar for showing books
+            .col.col-md
+                .row#bookBlockRow
+                    for book in books
+                        +bookBlockMixin(book)
+                .row
+                    .col.d-flex.justify-content-center.fade#loadingimage
+                        .lds-facebook
+                            div
+                            div
+                            div
+
+block more-js
+    script(src="/javascripts/library-home.js")
+                    
+                

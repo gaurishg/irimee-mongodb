@@ -1,0 +1,101 @@
+extends ../layout
+
+mixin rowMixin(field, data)
+    - if(data.length > 0)
+        .row
+            .col.col-sm-2
+                strong= field
+            .col.col-sm
+                - if(typeof data == "string")
+                    = data
+                - else
+                    - for( var i = 0; i < data.length - 1 ; ++i)
+                        = data[i]
+                        |, 
+                    = data[data.length - 1]
+
+block head-part
+    link(rel="stylesheet", href="/stylesheets/library-styles.css")
+
+block content
+    .container
+        .row
+            .col
+                h1 Add a copy of #[strong #{title}] to library
+
+        if languages    
+            +rowMixin("Language(s)", languages)
+        
+        if isbn10
+            +rowMixin("ISBN10", isbn10)
+        
+        if isbn13
+            +rowMixin("ISBN13", isbn13)
+
+        if authors
+            +rowMixin("Author(s)", authors)
+
+        if tags
+            +rowMixin("Tag(s)", tags)
+
+        if publisher
+            +rowMixin("Publisher", publisher)
+
+        hr
+
+        form(action="", method="post", enctype="multipart/form-data")
+            .form-row.form-group.align-items-center
+                .col.col-sm-2.col-form-label
+                    label(for="editionInput") 
+                        strong Edition
+                .col.col-sm-4
+                    input.form-control#editionInput(type="number", name="edition", value=(edition)?edition:"" , class=(editionError)?"is-invalid":"")
+                    .invalid-feedback Edition must be an integer
+
+            .form-row.form-group.align-items-center
+                .col.col-sm-2.col-form-label
+                    label(for="date_of_purchaseInput") 
+                        strong Date of purchase
+                .col.col-sm-4
+                    input.form-control#date_of_purchaseInput(type="text", name="date_of_purchase", placeholder="DD/MM/YYYY", value=(date_of_purchase)?date_of_purchase:"" , class=(date_of_purchaseError)?"is-invalid":"")
+                    .invalid-feedback Date should be in format: DD/MM/YYYY
+                .col.col-sm
+                    input.form-control-plaintext#formattedDate(readonly, tabindex=-1)
+
+            .form-row.form-group.align-items-center
+                .col.col-sm-2.col-form-label
+                    label(for="priceInput") 
+                        strong Price
+                .col.col-sm-4
+                    input.form-control#priceInput(type="text", name="price", value=(price)?price:"" , class=(priceError)?"is-invalid":"")
+                    .invalid-feedback Price should be an integer
+                .col.col-sm
+                    label Rs.
+
+            .form-row.form-group.align-items-center
+                .col.col-sm-2.col-form-label
+                    label(for="remarksInput", value=(remarks)?remarks:"") 
+                        strong Remarks
+                .col.col-sm
+                    textarea.form-control#remarksInput(name="remarks", cols="10", rows="5")
+
+            .form-row.form-group.align-items-center
+                .col.col-sm-2.col-form-label
+                    label(for="bookCoverInput") 
+                        strong Book cover
+                .col.col-sm
+                    img.img-thumbnail#bookCoverImage(src="/images/book-covers/"+image_file, alt="Book Cover")
+                    input.d-none#bookCoverInput(type="file", name="image_file")
+
+            .form-row
+                .col.col-sm-2
+                    button.btn.btn-secondary Cancel
+                .col.col-sm-2
+                    button.btn.btn-primary Add
+                .col.col-sm-2
+                    button.d-none.btn.btn-primary(type="submit") OK 
+
+        
+
+block more-js
+    script(src="/javascripts/library-addbookinstance.js")

@@ -7,6 +7,7 @@ var sassMiddleware = require('node-sass-middleware');
 var expressMongoDb = require('express-mongo-db');
 var session = require("express-session");
 var MongoStore = require("connect-mongo")(session);
+var db = require('./db');
 
 var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');
@@ -16,8 +17,25 @@ var apiRouter = require("./routes/api");
 var app = express();
 
 // Use mongodb middleware
-app.use(expressMongoDb('mongodb://localhost:27017/irimee'));
+// app.use(expressMongoDb('mongodb://localhost:27017/irimee'));
 // req.db has the Db object
+// db.connect('mongodb://localhost:27017/irimee', function(err){
+//   if (err) 
+//   {
+//     console.log('Unable to connect to Mongo.')
+//     process.exit(1)
+//   } 
+//   else 
+//   {
+//     console.log("connected to mongodb server");
+//   }
+// })
+
+db.getDatabaseHandle(function(database){
+  console.log("Connected to database");
+});
+
+
 
 
 // Use sessions

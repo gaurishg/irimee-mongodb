@@ -25,8 +25,8 @@ router.get('/all-tags', apiController.all_tags_get);
 
 router.get("/bookdetail/:id", apiController.book_detail_get);
 
-// router.get("/bookinstancedetail/:id", apiController.book_instance_detail_get);
+router.get("/bookinstancedetail/:id", apiController.book_instance_detail_get);
 
-// router.get("/getbooks", apiController.all_books_get);
+router.get("/getbooks", apiController.all_books_get);
 
 module.exports = router;

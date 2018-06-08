@@ -1,0 +1,86 @@
+extends ../layout
+
+mixin rowMixin(field, data)
+    - if(typeof(data) == "number")
+        .row
+            .col.col-sm-4
+                strong= field
+            .col.col-sm
+                - if(field == "Price")
+                    |Rs. #{data}
+                - else
+                    = data
+
+            
+    - if(data.length > 0)
+        .row
+            .col.col-sm-4
+                strong= field
+            .col.col-sm
+                - if(typeof data == "string")
+                    - if(field == "Status")
+                        - if(data == "A")
+                            |Available
+                        - else if(data == "I")
+                            |Issued
+                        - else if(data == "R")
+                            |Reserved
+                    - else
+                        = data
+                - else
+                    //- - for( var i = 0; i < data.length - 1 ; ++i)
+                    //-     = data[i]
+                    //-     |, 
+                    //- = data[data.length - 1]
+                    = data.join(", ")
+
+block head-part
+    link(rel="stylesheet", href="/stylesheets/library-styles.css")
+
+block content
+    .container
+        .row
+            .col
+                h1= title
+
+        .row
+            .col-12.col-sm-8.order-2.order-sm-1
+                if edition
+                    +rowMixin("Edition", edition)
+
+                if languages    
+                    +rowMixin("Language(s)", languages)
+                
+                if isbn10
+                    +rowMixin("ISBN10", isbn10)
+                
+                if isbn13
+                    +rowMixin("ISBN13", isbn13)
+
+                if authors
+                    +rowMixin("Author(s)", authors)
+
+                if tags
+                    +rowMixin("Tag(s)", tags)
+
+                if publisher
+                    +rowMixin("Publisher", publisher)
+
+                if status
+                    +rowMixin("Status", status)
+
+                if date_of_purchase
+                    +rowMixin("Purchased on", date_of_purchase)
+
+                if remarks
+                    +rowMixin("Remarks", remarks)
+
+                if price
+                    +rowMixin("Price", price)
+
+            .col-12.col-sm.order-1.order-sm-2
+                img.img-thumbnail#BookCoverImage(src="/images/book-covers/" + image_file, alt="Book cover")
+
+        
+
+

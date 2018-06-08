@@ -38,7 +38,7 @@ block content
     .container
         .row
             .col
-                h1= Title
+                h1= title
 
         .row
             .col
@@ -47,11 +47,11 @@ block content
         if languages    
             +rowMixin("Language(s)", languages)
         
-        if ISBN10
-            +rowMixin("ISBN10", ISBN10)
+        if isbn10
+            +rowMixin("ISBN10", isbn10)
         
-        if ISBN13
-            +rowMixin("ISBN13", ISBN13)
+        if isbn13
+            +rowMixin("ISBN13", isbn13)
 
         if authors
             +rowMixin("Author(s)", authors)

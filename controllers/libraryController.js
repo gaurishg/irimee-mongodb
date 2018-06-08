@@ -5,6 +5,14 @@ var XMLHttpRequest = require("xmlhttprequest").XMLHttpRequest;
 var numToWords = require("number-to-words");
 var multer = require("multer");
 var ObjectID = require("mongodb").ObjectID;
+var moment = require("moment");
+var getBookById = require('./apiController').getBookById;
+var dbHandle = require('../db');
+var db;
+
+dbHandle.getDatabaseHandle(function(database){
+    db = database;
+});
 
 function makeUrlQuery(object)
 {
@@ -53,6 +61,7 @@ function extractDigits(isbn)
     return newisbn;
 }
 
+
 // Set Storage Engine
 var storage = multer.diskStorage({
     destination: function(req, res, cb) {
@@ -93,7 +102,7 @@ exports.add_book_get = function(req, res, next)
     async.parallel({
         languages: function(cb)
         {
-            req.db.collection("languages").find().toArray(function(err, results){
+            db.collection("languages").find().toArray(function(err, results){
                 if(err) 
                 {
                     cb(err, null);
@@ -108,7 +117,7 @@ exports.add_book_get = function(req, res, next)
 
         authors: function(cb)
         {
-            req.db.collection("authors").find().toArray(function(error, results){
+            db.collection("authors").find().toArray(function(error, results){
                 if(error)
                 {
                     cb(error, null);
@@ -123,7 +132,7 @@ exports.add_book_get = function(req, res, next)
 
         tags: function(cb)
         {
-            req.db.collection("tags").find().toArray(function(error, results){
+            db.collection("tags").find().toArray(function(error, results){
                 if(error)
                 {
                     cb(error, null);
@@ -138,7 +147,7 @@ exports.add_book_get = function(req, res, next)
 
         publishers: function(cb)
         {
-            req.db.collection("publishers").find().toArray(function(error, results){
+            db.collection("publishers").find().toArray(function(error, results){
                 if(error)
                 {
                     cb(error, null);
@@ -215,19 +224,21 @@ exports.add_book_post = function(req, res, next)
                         if(typeof req.body.new_tag === 'undefined') req.body.new_tag = [];
                         else req.body.new_tag = new Array(req.body.new_tag);
                     }
-
-                    // // Seperate new publisher
-                    // if(req.body.publisher) // if it is not undefined
-                    // {
-                    //     if(!(req.body.publisher).startsWith("publisher"))
-                    //         req.body.new_publisher = req.body.publisher;
-                    // }
                         
 
-                    if(!req.body.isbn10) req.body.isbn10 = "";
+                    if(!req.body.isbn10) 
+                        req.body.isbn10 = "";
                     req.body.isbn10 = extractDigits(req.body.isbn10);
-                    if(!req.body.isbn13) req.body.isbn13 = "";
+
+                    if(!req.body.isbn13) 
+                        req.body.isbn13 = "";
                     req.body.isbn13 = extractDigits(req.body.isbn13);
+
+                    if(req.body.publisher)
+                        req.body.publisher = req.body.publisher.trim();
+
+                    if(req.body.title)
+                        req.body.title = req.body.title.trim();
                     next(null, null);
                 }, // First fn to convert values into array and int ends
 
@@ -270,7 +281,7 @@ exports.add_book_post = function(req, res, next)
                 {
                     if(req.body.isbn10.length == 10)
                     {
-                        req.db.collection("books").find({isbn10: req.body.isbn10}).toArray(function(error, results){
+                        db.collection("books").find({isbn10: req.body.isbn10}).toArray(function(error, results){
                             if(error) throw error;
                             if(results.length!=0)
                             {
@@ -292,7 +303,7 @@ exports.add_book_post = function(req, res, next)
                 {
                     if(req.body.isbn13.length == 13)
                     {
-                        req.db.collection("books").find({isbn13: req.body.isbn13}).toArray(function(error, results){
+                        db.collection("books").find({isbn13: req.body.isbn13}).toArray(function(error, results){
                             if(error) throw error;
                             if(results.length!=0)
                             {
@@ -325,7 +336,7 @@ exports.add_book_post = function(req, res, next)
                             languages_to_insert.push(langobj);
                         }
 
-                        req.db.collection("languages").insertMany(languages_to_insert, function(error, results){
+                        db.collection("languages").insertMany(languages_to_insert, function(error, results){
                             if(error) throw error;
                             for (const insertedId of results.insertedIds) 
                             {
@@ -355,7 +366,7 @@ exports.add_book_post = function(req, res, next)
                             }
                             authors_to_insert.push(authobj);
                         }
-                        req.db.collection("authors").insertMany(authors_to_insert, function(error, results){
+                        db.collection("authors").insertMany(authors_to_insert, function(error, results){
                             if(error) throw error;
                             for (const insertedId of results.insertedIds) 
                             {
@@ -385,7 +396,7 @@ exports.add_book_post = function(req, res, next)
                             }
                             tags_to_insert.push(tagobj);
                         }
-                        req.db.collection("tags").insertMany(tags_to_insert, function(error, results){
+                        db.collection("tags").insertMany(tags_to_insert, function(error, results){
                             if(error) throw error;
                             for (const insertedId of results.insertedIds) 
                             {
@@ -409,7 +420,7 @@ exports.add_book_post = function(req, res, next)
                             name: req.body.new_publisher,
                             namelowercase: req.body.new_publisher.toLowerCase()
                         }
-                        req.db.collection("publishers").insertOne(pubobj, function(error, results){
+                        db.collection("publishers").insertOne(pubobj, function(error, results){
                             if(error) throw error;
                             req.body.publisher = results.insertedId;
                             next(null, null);
@@ -432,7 +443,7 @@ exports.add_book_post = function(req, res, next)
                         async.parallel({
                             languages: function(cb)
                             {
-                                req.db.collection("languages").find().toArray(function(error, results){
+                                db.collection("languages").find().toArray(function(error, results){
                                     if(error) throw error;
                                     for (let index = 0; index < results.length; index++) 
                                     {
@@ -445,7 +456,7 @@ exports.add_book_post = function(req, res, next)
                             }, // Got languages
                             authors: function(cb)
                             {
-                                req.db.collection("authors").find().toArray(function(error, results){
+                                db.collection("authors").find().toArray(function(error, results){
                                     if(error) throw error;
                                     for (let index = 0; index < results.length; index++) 
                                     {
@@ -459,7 +470,7 @@ exports.add_book_post = function(req, res, next)
 
                             publishers: function(cb)
                             {
-                                req.db.collection("publishers").find().toArray(function(error, results){
+                                db.collection("publishers").find().toArray(function(error, results){
                                     if(error) throw error;
                                     for (let index = 0; index < results.length; index++) 
                                     {
@@ -476,7 +487,7 @@ exports.add_book_post = function(req, res, next)
 
                             tags: function(cb)
                             {
-                                req.db.collection("tags").find().toArray(function(error, results){
+                                db.collection("tags").find().toArray(function(error, results){
                                     if(error) throw error;
                                     for (let index = 0; index < results.length; index++) 
                                     {
@@ -546,7 +557,7 @@ exports.add_book_post = function(req, res, next)
                         async.series([
                             function(cb) // create book document
                             {
-                                req.db.collection("books").insertOne(Book, function(error, result){
+                                db.collection("books").insertOne(Book, function(error, result){
                                     if(error) throw error;
                                     Book._id = ObjectID(result.insertedId);
                                     cb();
@@ -556,7 +567,7 @@ exports.add_book_post = function(req, res, next)
                             function(cb) // Add book to languages
                             {
                                 req.body.language.forEach(language => {
-                                    req.db.collection("languages").updateOne({_id: ObjectID(language)}, {$push: {books: Book._id}}, function(err, result){
+                                    db.collection("languages").updateOne({_id: ObjectID(language)}, {$push: {books: Book._id}}, function(err, result){
 
                                     });
                                 });
@@ -570,7 +581,7 @@ exports.add_book_post = function(req, res, next)
                                     cb();
                                     return;
                                 }
-                                req.db.collection("publishers").updateOne({_id: ObjectID(Book.publisher)}, {$push: {books: Book._id}}, function(err, result){
+                                db.collection("publishers").updateOne({_id: ObjectID(Book.publisher)}, {$push: {books: Book._id}}, function(err, result){
                                     cb();
                                 });
                             },
@@ -578,7 +589,7 @@ exports.add_book_post = function(req, res, next)
                             function(cb) // Add book to authors
                             {
                                 req.body.author.forEach(author => {
-                                    req.db.collection("authors").updateOne({_id: ObjectID(author)}, {$push: {books: Book._id}}, function(err, result){
+                                    db.collection("authors").updateOne({_id: ObjectID(author)}, {$push: {books: Book._id}}, function(err, result){
 
                                     });
                                 });
@@ -588,7 +599,7 @@ exports.add_book_post = function(req, res, next)
                             function(cb) // Add book to tags
                             {
                                 req.body.tag.forEach(tag => {
-                                    req.db.collection("tags").updateOne({_id: ObjectID(tag)}, {$push: {books: Book._id}}, function(err, result){
+                                    db.collection("tags").updateOne({_id: ObjectID(tag)}, {$push: {books: Book._id}}, function(err, result){
 
                                     });
                                 });
@@ -629,4 +640,255 @@ exports.book_detail_get = function(req, res, next)
     }
     xhr.open("GET", url, true);
     xhr.send(null);
+}
+
+exports.add_book_instance_get = function(req, res, next)
+{
+    var book_id = req.params.id;
+    var xhr = new XMLHttpRequest();
+    var url = '/api/bookdetail/' + book_id;
+    xhr.onreadystatechange = function()
+    {
+        if(xhr.readyState == 4 && xhr.status == 200)
+        {
+            var data = JSON.parse(xhr.responseText);
+            if(data.found == "no")
+            {
+                next();
+            }
+            else
+            {
+                res.render('library/add-bookinstance', data);
+            }
+        }
+    }
+    xhr.open("GET", url, true);
+    xhr.send(null);
+}
+
+exports.add_book_instance_post = function(req, res, next)
+{
+    upload(req, res, function(err)
+    {
+        if(err)
+        {
+            res.send("Error uploading image");
+        }
+        else
+        {
+            var errors = 0;
+            var book_instance = {
+                book_id: ObjectID(req.params.id),
+                status: "A"};
+            if(req.file)
+            {
+                book_instance.image_file = req.file.filename;
+            }
+            var book_id = req.params.id;
+            async.series([
+                function(cb) // Validate all inputs
+                {
+                    // Trim all inputs
+                    req.body.edition = req.body.edition.trim();
+                    req.body.date_of_purchase = req.body.date_of_purchase.trim();
+                    req.body.price = req.body.price.trim();
+                    req.body.remarks = req.body.remarks.trim();
+
+                    if(req.body.remarks != "")
+                        book_instance.remarks = req.body.remarks;
+
+                    if(!isNaN(req.body.edition))
+                    {
+                        book_instance.edition = parseInt(req.body.edition);
+                    }
+                    else if(req.body.edition == "")
+                    {
+
+                    }
+                    else
+                    {
+                        errors++;
+                        book_instance.editionError = "yes";
+                    }
+
+                    if(moment(req.body.date_of_purchase, "DD/MM/YYYY").isValid())
+                    {
+                        book_instance.date_of_purchase = moment(req.body.date_of_purchase, "DD/MM/YYYY").toDate();
+                    }
+                    else if(req.body.date_of_purchase === "")
+                    {
+
+                    }
+                    else
+                    {
+                        errors++;
+                        book_instance.date_of_purchaseError = "yes";
+                    }
+
+                    if(!isNaN(req.body.price))
+                    {
+                        book_instance.price = parseInt(req.body.price);
+                    }
+                    else if(req.body.price == "")
+                    {
+
+                    }
+                    else
+                    {
+                        errors++;
+                        book_instance.priceError = "yes";
+                    }
+
+                    cb(null, null);
+                },
+
+                function(cb) // Add book_instance to database
+                {
+                    if(errors)
+                    {
+                        book_instance.date_of_purchase = moment(book_instance.date_of_purchase).format("DD/MM/YYYY");
+                        res.render('library/add-bookinstance', book_instance);
+                    }
+                    else
+                    {
+                        db.collection("book_instances").insertOne(book_instance, function(error, result){
+                            if(error)
+                            {
+                                res.send("Error inserting book copy");
+                            }
+                            else
+                            {
+                                db.collection("books").updateOne({_id: ObjectID(book_id)}, {$push: {book_instances: ObjectID(result.insertedId)}}, function(err, result)
+                                {
+
+                                });
+                                res.redirect('/library/bookinstancedetail/' + result.insertedId);
+                            }
+                            cb(null, null);
+                        })
+                    }
+                }
+            ]); // async.series ends
+        } // else (image succesfully uploaded) ends
+    }); // upload function ends
+}
+
+exports.book_instance_detail_get = function(req, res, next)
+{
+    var xhr = new XMLHttpRequest();
+    var url = '/api/bookinstancedetail/' + req.params.id;
+    xhr.onreadystatechange = function()
+    {
+        if(xhr.status == 200 && xhr.readyState == 4)
+        {
+            var book_instance = JSON.parse(xhr.responseText);
+            if(book_instance.found == "no")
+            {
+                next();
+            }
+            else
+            {
+                if(book_instance.date_of_purchase)
+                {
+                    book_instance.date_of_purchase = moment(book_instance.date_of_purchase).format("dddd, MMMM Do YYYY");
+                }
+                res.render('library/bookinstance-detail', book_instance);
+            }
+        }
+    }
+    xhr.open("GET", url, true);
+    xhr.send(null);
+}
+
+exports.home = function(req, res, next)
+{
+    async.series({
+        tags:   function(cb)
+                {
+                    var xhr = new XMLHttpRequest();
+                    var tag_ids = req.query.tag_ids;
+                    xhr.onreadystatechange = function()
+                    {
+                        if(xhr.readyState == 4 && xhr.status == 200)
+                        {
+                            var tags = JSON.parse(xhr.responseText);
+                            if(tag_ids)
+                            {
+                                if(!(tag_ids instanceof Array))
+                                {
+                                    tag_ids = new Array(tag_ids);
+                                }
+                                tags.forEach(tag => {
+                                    if(tag_ids.includes(tag._id))
+                                    {
+                                        tag.checked = true;
+                                    }
+                                });
+                            }
+                            cb(null, tags);
+                        }
+                    }
+                    xhr.open("GET", '/api/all-tags', true);
+                    xhr.send(null);
+                },
+
+        languages:  function(cb) // Get all languages
+                    {
+                        var xhr = new XMLHttpRequest();
+                        var language_ids = req.query.language_ids;
+                        // console.log("language_ids: ");
+                        // console.log(language_ids);
+                        xhr.onreadystatechange = function()
+                        {
+                            if(xhr.readyState == 4 && xhr.status == 200)
+                            {
+                                var languages = JSON.parse(xhr.responseText);
+                                if(language_ids)
+                                {
+                                    // console.log("language_ids are present");
+                                    if(!(language_ids instanceof Array))
+                                    {
+                                        // console.log("but language_ids is not array, so converting it");
+                                        language_ids = new Array(language_ids);
+                                        // console.log("after convertion: ");
+                                        // console.log(language_ids);
+                                    }
+                                    
+                                    language_ids = toIntArray(language_ids);
+                                    languages.forEach(language => {
+                                        if(language_ids.includes(language.ID))
+                                        {
+                                            // console.log("language_ids includes " + language.ID);
+                                            language.checked = true;
+                                        }
+                                    });
+                                }
+                                cb(null, languages);
+                            }
+                        }
+                        xhr.open("GET", "/api/all-languages", true);
+                        xhr.send(null);
+                    },
+        books:  function(cb)
+                {
+                    var xhr = new XMLHttpRequest();
+                    var url = '/api/getbooks?' + makeUrlQuery(req.query);
+                    // console.log(url);
+                    xhr.onreadystatechange = function()
+                    {
+                        if(xhr.readyState == 4 && xhr.status == 200)
+                        {
+                            var books = JSON.parse(xhr.responseText);
+                            cb(null, books);
+                            // res.render('library/library-home', {books: data});
+                        }
+                    }
+                    xhr.open("GET", url, true);
+                    xhr.send(null);
+                }
+    },
+    function(errors, results) // Final callback function of async.series
+    {
+        res.render('library/library-home', {books: results.books, tags: results.tags, languages: results.languages});
+    }); // async.series ends
 }
